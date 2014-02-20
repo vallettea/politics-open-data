@@ -1,0 +1,5 @@
+*.xls
+.DS_Store
+*.png
+*.gz
+data/
