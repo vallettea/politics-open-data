@@ -72,7 +72,7 @@ data["CODE DPARTEMENT"] = data["CODE DPARTEMENT"].apply(clean_dept_name)
 all_data = all_data.append(data)
 
 #aggregate on the mapping
-mapping = pandas.read_csv("raw_data/correspondance-code-insee-code-postal.csv.gz", sep=";", compression="gzip")
+mapping = pandas.read_csv("data/raw_data/correspondance-code-insee-code-postal.csv.gz", sep=";", compression="gzip")
 mapping["CODE COMMUNE"] = mapping["code_comm"].apply(as_string)
 mapping["CODE DPARTEMENT"] = mapping["code_dept"].apply(as_string)
 
@@ -83,12 +83,19 @@ final = final.drop(["CODE DPARTEMENT", "CODE COMMUNE"], axis = 1)
 final = final.drop(["id_geofla", "code_comm", "code_cant", "code_arr", "code_dept", "code_reg"], axis = 1)
 final.columns = ["INSEE_CODE", "POSTAL_CODE", "COMMUNE_NAME", "DEPARTEMENT_NAME", "REGION_NAME", "STATUS", "ALTITUDE", "AREA", "POPULATION", "CENTER", "SHAPE", "REGISTERED", "ABSTENTION"]
 
-final.to_csv("cleaned_data/elections.csv", sep=";", index = False)
+# normalize abstention by registered
+final["REGISTERED"] = final["REGISTERED"].apply(float)
+final["ABSTENTION"] = final["ABSTENTION"].apply(float)
+final = final[final["REGISTERED"] > 0]
+final["ABSTENTION"] = final["ABSTENTION"]/final["REGISTERED"]
+final["ABSTENTION"] = (final["ABSTENTION"] - final["ABSTENTION"].min()) / (final["ABSTENTION"].max() - final["ABSTENTION"].min())
+
+final.to_csv("data/cleaned_data/elections.csv", index = False)
 
 # compress output
-f_in = open("cleaned_data/elections.csv", "rb")
-f_out = gzip.open("cleaned_data/elections.csv.gz", "wb")
+f_in = open("data/cleaned_data/elections.csv", "rb")
+f_out = gzip.open("data/cleaned_data/elections.csv.gz", "wb")
 f_out.writelines(f_in)
 f_out.close()
 f_in.close()
-os.remove("cleaned_data/elections.csv")
+os.remove("data/cleaned_data/elections.csv")
