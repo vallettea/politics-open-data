@@ -1,5 +1,5 @@
 *.xls
-.DS_Store
+*.DS_Store
 *.png
 *.gz
 data/
