@@ -1,4 +1,4 @@
-.PHONY: syncdata
+.PHONY: get
 
 syncdata:
 	s3cmd sync --recursive data s3://public-shared-everybody/politics-open-data/

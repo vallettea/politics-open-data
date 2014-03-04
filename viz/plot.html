@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title> Abstention to municiaples elections in France in 2008 </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="lib/leaflet.css" />
+
+    <style>
+    html, body, #map {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+    }
+    .info {
+        height: 400px;
+        width: 400px;
+        position: relative;
+        padding: 16px 18px;
+        font: 18px/24px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+    }
+    .info h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+    .info ul {
+        font: 11px/13px Arial, Helvetica, sans-serif;
+        overflow: auto; 
+    }
+    .mapLabel {
+        height: 200px;
+        width: 200px;
+        position: relative;
+        padding: 16px 18px;
+        font: 18px/24px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+    }
+    .mapLabel h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+    .legend {
+        text-align: left;
+        line-height: 26px;
+        color: #555;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="lib/leaflet.js"></script>
+    <script src="lib/d3.v3.js"></script>
+    <script src="lib/promise.js"></script>
+    <script>
+    "use strict";
+
+    var mapP = new Promise(function (resolve, reject) {
+        var map = L.map('map').setView([46.7215, 2.757], 6);
+        var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+            key: '9fe75158a80d41c7a6d4a4a3d32c1d38',
+            styleId: 22677
+        }).addTo(map);
+
+        cloudmade.on("load", function () {
+            resolve(map);
+        });
+    });
+
+    var link = "../data/cleaned_data/all_data.csv";
+
+    var csvP = new Promise(function (resolve, reject) {
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", link);
+        oReq.send();
+        oReq.addEventListener("load", function(e) {
+            resolve(oReq.responseText);
+        });        
+    });
+
+
+    Promise.all([mapP, csvP]).then(function(results){
+        var map = results[0];
+        var csv = results[1];
+
+        var data = d3.csv.parse(csv);
+
+        function polyOrNot(d) {
+            if (d.type == "Polygon") { return  {"type": "Polygon", "coordinates": d.coordinates}}
+            else if (d.type == "MultiPolygon") { return {"type": "MultiPolygon", "coordinates": d.coordinates}}
+            else { return {"type": "MultiPolygon", "coordinates": [[[[7.132546766373812,43.67479229135613]]]]}}
+        }
+
+        var toKeep = ["RFM_2010_NOMBRE_PERSONNES_DES_MENAGES_FISCAUX", "POPULATION", "LATITUDE", "DEFM_CAT_ABC_DE_LONGUE_DUREE_AU_31_DECEMBRE_2010", "CREATIONS_D_ENTR_EN_2012", "LONGITUDE", "RFM_2010_2EME_QUARTILE_PAR_UC_", "RFM_2010_NOMBRE_DE_MENAGES_FISCAUX", "FAM_MONOPARENTALES_EN_2010_", "POP_15-29_ANS_EN_2010", "ALTITUDE", "MENAGES_1_PERSONNE_EN_2010_", "AREA", "AOC", "POP_75_ANS_OU_PLUS_EN_2010", "POP_45-59_ANS_EN_2010", "POP_60-74_ANS_EN_2010", "PAC", "LOGEMENTS_VACANTS_EN_2010", "NAISSANCES_1999-2010"]
+        var listGeoData = data.map(function(d) {
+            var mapping = toKeep.map(function(k){
+                return k + " : " + d[k];
+            });
+
+            return {
+                "type": "Feature",
+                "properties": {
+                    "name": d.COMMUNE_NAME,
+                    "abstention" : d.ABSTENTION,
+                    "otherData" : mapping
+                },
+                "geometry": polyOrNot(JSON.parse(d.SHAPE))
+            };
+        });
+
+        // control that shows state info on hover
+        var info = L.control({
+            position: 'bottomright'
+        });
+
+        info.onAdd = function(map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function(props) {
+
+           this._div.innerHTML = '<h4>Commune : </h4>' +  (props ?
+                '<b>' + props.name + '</b><br /> Abstention : ' + props.abstention*100 + ' %'+'<br />'+
+                '<ul>'+
+                props.otherData.map(function(d){
+                    return '<li>' + d + '</li>' 
+                }).join("") +
+                '</ul>'
+                : 'Click on area to show its info ');
+        };
+
+        info.addTo(map);
+
+
+        // get color depending on output density value
+
+        function getColor(d) {
+            return d*100 > 60 ? '#800026' :
+                d*100 > 50 ? '#BD0026' :
+                d*100 > 40 ? '#E31A1C' :
+                d*100 > 30 ? '#FC4E2A' :
+                d*100 > 20 ? '#FD8D3C' :
+                d*100 > 10 ? '#FEB24C' :
+                d*100 > 5 ? '#FED976' :
+                '#FFEDA0';
+        }
+
+        function style(feature) {
+            return {
+                weight: 0.3,
+                opacity: 0.9,
+                color: 'black',
+                fillOpacity: 0.7,
+                fillColor: getColor(feature.properties.abstention)
+            };
+        }
+
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 3,
+                color: '#666',
+                fillOpacity: 0.7
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+                layer.bringToFront();
+            }
+        }
+
+        function showFeature(e) {
+            var layer = e.target;
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+                layer.bringToFront();
+            }
+            info.update(layer.feature.properties);
+        }
+
+        var geojson;
+
+        function resetHighlight(e) {
+            geojson.resetStyle(e.target);
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: showFeature
+            });
+        }
+  
+        geojson = L.geoJson(listGeoData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+
+        var legend = L.control({
+            position: 'bottomleft'
+        });
+
+        legend.onAdd = function(map) {
+
+            var div = L.DomUtil.create('div', 'mapLabel legend'),
+                grades = [60, 50, 40, 30, 20, 10, 5],
+                labels = [],
+                from, to;
+            labels.push('<i style="background:' + getColor((60 + 1)/100.0) + '"></i> 60+')
+            for (var i = 0; i < grades.length; i++) {
+                from = grades[i];
+                to = grades[i + 1];
+                labels.push(
+                    '<i style="background:' + getColor((from + 1)/100.0) + '"></i> ' +
+                    from + (to ? '&ndash;' + to : '-'));
+            }
+
+            div.innerHTML = labels.join('<br>');
+            return div;
+        };
+
+        legend.addTo(map);
+
+    });   
+    </script>
+</body>
+
+</html>
