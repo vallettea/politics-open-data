@@ -55,7 +55,7 @@ data = pandas.merge(data, population, how="left", on="INSEE_CODE")
 families = pandas.read_csv("data/raw_data/insee/base-cc-coupl-fam-men-2010.csv.gz", sep=",", compression="gzip")
 families["INSEE_CODE"] = families["CODGEO"].apply(str)
 families = families.drop(["CODGEO","REG","DEP","ARR","CV","ZE2010","ID_MODIF_GEO","LIBGEO"], axis=1)
-if partial: families = families[["MENAGES_1_PERSONNE_EN_2010_", "MENAGES_EN_2010_", "FAM_COUPLE_AVEC_ENFANT_EN_2010_", "FAM_MONOPARENTALES_EN_2010_", "INSEE_CODE"]]
+if partial: families = families[["MENAGES_1_PERSONNE_EN_2010_", "FAM_COUPLE_AVEC_ENFANT_EN_2010_", "FAM_MONOPARENTALES_EN_2010_", "INSEE_CODE"]]
 data = pandas.merge(data, families, how="left", on="INSEE_CODE")
 
 # salaries (only 50k)

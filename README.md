@@ -1,6 +1,6 @@
 These are the files used to write :
 
-[Clean Open-Data to make it shine](http://snips.net/blog/posts/2014/02-18-2014-02-18-clean-open-data.html)
+[Clean Open-Data to make it shine](http://snips.net/blog/posts/2014/02-18-2014-02-18-predicting-abstention-rate-from-open-data.html)
 
 To start playing do:
 
