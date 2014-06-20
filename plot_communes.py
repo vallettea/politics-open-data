@@ -6,7 +6,7 @@ import simplejson
 import numpy as np
 
 
-data = pandas.read_csv("data/cleaned_data/elections.csv.gz", compression="gzip")
+data = pandas.read_csv("data/elections.csv.gz", compression="gzip")
 data["ABSTENTION"] = 100*data["ABSTENTION"].apply(float)
 
 fig = plt.figure(figsize=(20,20))

@@ -4,9 +4,9 @@ import numpy as np
 import gzip
 import os
 
-data = pandas.read_csv("data/cleaned_data/elections.csv.gz", sep=",", compression="gzip")
+data = pandas.read_csv("data/elections.csv.gz", sep=",", compression="gzip")
 
-partial = True
+partial = False
 
 # retail
 # http://www.insee.fr/fr/ppp/bases-de-donnees/donnees-detaillees/equip-serv-commerce/equip-serv-commerce-com-12.zip
@@ -196,14 +196,14 @@ data["LONGITUDE"] = data["CENTER"].apply(mkLon)
 data = data.fillna(0) 
 ########################
 
-data.to_csv("data/cleaned_data/all_data.csv", sep=",", index=False)
+data.to_csv("data/communes.csv", sep=",", index=False)
 
 if not partial:
 	# compress output
-	f_in = open("cleaned_data/all_data.csv", "rb")
-	f_out = gzip.open("cleaned_data/all_data.csv.gz", "wb")
+	f_in = open("data/communes.csv", "rb")
+	f_out = gzip.open("data/communes.csv.gz", "wb")
 	f_out.writelines(f_in)
 	f_out.close()
 	f_in.close()
-	os.remove("cleaned_data/all_data.csv")
+	os.remove("data/communes.csv")
 

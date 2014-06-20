@@ -1,7 +1,12 @@
-.PHONY: get
+DATA_DIR=data
 
-syncdata:
-	s3cmd sync --recursive data s3://public-shared-everybody/politics-open-data/
-	
-getdata:
-	s3cmd get --recursive s3://public-shared-everybody/politics-open-data/data/ data/
+
+all: download-data
+.PHONY: download-data
+
+download-data:
+	@rm -rf $(DATA_DIR)
+	@mkdir -p $(DATA_DIR)
+	@wget -P $(DATA_DIR)/ http://catalogue.datalocale.fr//fr/storage/f/2014-06-20T151409/communes.csv.gz
+	@wget -P $(DATA_DIR)/ http://catalogue.datalocale.fr//fr/storage/f/2014-06-20T145640/elections.csv.gz
+

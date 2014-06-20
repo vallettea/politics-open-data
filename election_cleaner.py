@@ -76,12 +76,12 @@ final = final[final["REGISTERED"] > 0]
 final["ABSTENTION"] = final["ABSTENTION"]/final["REGISTERED"]
 final["ABSTENTION"] = (final["ABSTENTION"] - final["ABSTENTION"].min()) / (final["ABSTENTION"].max() - final["ABSTENTION"].min())
 
-final.to_csv("data/cleaned_data/elections.csv", index = False)
+final.to_csv("data/elections.csv", index = False)
 
 # compress output
-f_in = open("data/cleaned_data/elections.csv", "rb")
-f_out = gzip.open("data/cleaned_data/elections.csv.gz", "wb")
+f_in = open("data/elections.csv", "rb")
+f_out = gzip.open("data/elections.csv.gz", "wb")
 f_out.writelines(f_in)
 f_out.close()
 f_in.close()
-os.remove("data/cleaned_data/elections.csv")
+os.remove("data/elections.csv")

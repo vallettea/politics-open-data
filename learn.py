@@ -9,7 +9,7 @@ from sklearn import svm, metrics, preprocessing
 from sklearn import cross_validation
 from sklearn import ensemble
 
-data = pandas.read_csv("data/cleaned_data/all_data.csv.gz", sep=",", compression="gzip")
+data = pandas.read_csv("data/communes.csv.gz", sep=",", compression="gzip")
 
 
 data["REGISTERED"] = data["REGISTERED"].apply(float)
@@ -40,7 +40,7 @@ to_predict = "ABSTENTION"
 data = data.dropna()
 
 
-print "shufling"
+print "shuffling"
 data.reindex(np.random.permutation(data.index))
 
 y = data.ix[:, to_predict].astype("float64")
