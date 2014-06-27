@@ -6,7 +6,7 @@ import os
 
 data = pandas.read_csv("data/elections.csv.gz", sep=",", compression="gzip")
 
-partial = False
+partial = True
 
 # retail
 # http://www.insee.fr/fr/ppp/bases-de-donnees/donnees-detaillees/equip-serv-commerce/equip-serv-commerce-com-12.zip
@@ -198,12 +198,12 @@ data = data.fillna(0)
 
 data.to_csv("data/communes.csv", sep=",", index=False)
 
-if not partial:
-	# compress output
-	f_in = open("data/communes.csv", "rb")
-	f_out = gzip.open("data/communes.csv.gz", "wb")
-	f_out.writelines(f_in)
-	f_out.close()
-	f_in.close()
-	os.remove("data/communes.csv")
+
+# compress output
+f_in = open("data/communes.csv", "rb")
+f_out = gzip.open("data/communes.csv.gz", "wb")
+f_out.writelines(f_in)
+f_out.close()
+f_in.close()
+os.remove("data/communes.csv")
 
