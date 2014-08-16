@@ -10,7 +10,7 @@ download-data:
 	@wget -P $(DATA_DIR)/ http://catalogue.datalocale.fr//fr/storage/f/2014-06-20T151409/communes.csv.gz
 	@wget -P $(DATA_DIR)/ http://catalogue.datalocale.fr//fr/storage/f/2014-06-20T145640/elections.csv.gz
 
-install: getdata
+install:
 	pip install -r requirements.txt
 
 webserver:
