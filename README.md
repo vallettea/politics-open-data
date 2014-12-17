@@ -1,4 +1,4 @@
-[Click here for associated blog post](http://snips.net/blog/posts/2014/02-18-predicting-abstention-rate-from-open-data.html)
+[Click here for associated blog post](http://ants.builders/blog/18-02-2014/predicting-abstention-rate-using-open-data.html)
 
 To start playing do:
 
